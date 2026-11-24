@@ -1,0 +1,116 @@
+/* FlexxoApp — generated from tokens.json */
+:root, [data-theme="light"] {
+  --brand: #84bd00;
+  --brand-hover: #76aa00;
+  --on-brand: #17230a;
+  --brand-text: #4f7a00;
+  --brand-soft: #eef6dc;
+  --brand-soft-text: #3f6400;
+  --accent: #004976;
+  --accent-soft: #e6eef4;
+  --on-accent: #ffffff;
+  --bg: #f4f6f3;
+  --surface: #ffffff;
+  --surface-sunken: #eef1ec;
+  --surface-raised: #ffffff;
+  --border: #dde2da;
+  --border-control: #828d85;
+  --text: #1d2620;
+  --text-muted: #5b665e;
+  --text-disabled: #9aa39c;
+  --success: #3f6400;
+  --success-soft: #eef6dc;
+  --warning: #8f4d00;
+  --warning-soft: #fff4e0;
+  --danger: #b3261e;
+  --danger-soft: #fdecea;
+  --on-danger: #ffffff;
+  --info: var(--accent);
+  --info-soft: var(--accent-soft);
+  --focus-ring: #004976;
+  --sidebar: #ffffff;
+  --overlay: rgba(18, 23, 20, 0.45);
+  --shadow-1: 0 1px 2px rgba(29, 38, 32, 0.06), 0 1px 1px rgba(29, 38, 32, 0.04);
+  --shadow-2: 0 4px 12px rgba(29, 38, 32, 0.08), 0 1px 3px rgba(29, 38, 32, 0.06);
+  --shadow-3: 0 12px 32px rgba(29, 38, 32, 0.14), 0 2px 6px rgba(29, 38, 32, 0.08);
+}
+[data-theme="dark"] {
+  --brand: #84bd00;
+  --brand-hover: #95cc14;
+  --on-brand: #17230a;
+  --brand-text: #a6d64a;
+  --brand-soft: #1f2b10;
+  --brand-soft-text: #b5e06a;
+  --accent: #6fb2e0;
+  --accent-soft: #14222d;
+  --on-accent: #0b1a24;
+  --bg: #121714;
+  --surface: #1a211c;
+  --surface-sunken: #151b17;
+  --surface-raised: #222b25;
+  --border: #2c362f;
+  --border-control: #7d8a80;
+  --text: #e8ede6;
+  --text-muted: #a3aea5;
+  --text-disabled: #5f6a62;
+  --success: #a9d65a;
+  --success-soft: #1d2a12;
+  --warning: #f0b36b;
+  --warning-soft: #2a2116;
+  --danger: #f2958c;
+  --danger-soft: #2b1a18;
+  --on-danger: #2b1a18;
+  --info: var(--accent);
+  --info-soft: var(--accent-soft);
+  --focus-ring: #9fd42a;
+  --sidebar: #151b17;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  --control-sm: 36px;
+  --control-md: 44px;
+  --touch-target: 48px;
+  --control-lg: 52px;
+  --touch-gap: 8px;
+  --row-touch: 56px;
+  --row-compact: 36px;
+  --rail-width: 88px;
+  --sidebar-width: 248px;
+  --planboard-label: 200px;
+  --content-max: 1440px;
+  --bp-tablet: 640px;
+  --bp-tablet-landscape: 1024px;
+  --bp-desktop: 1280px;
+  --font-display: "Outfit", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+.display { font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 600; letter-spacing: -0.01em; }
+.h1 { font-family: var(--font-display); font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.005em; }
+.h2 { font-family: var(--font-display); font-size: 20px; line-height: 28px; font-weight: 600; }
+.h3 { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 650; }
+.body { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.body-strong { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 600; }
+.body-sm { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.overline { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 650; letter-spacing: 0.06em; }
+.caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.kpi { font-family: var(--font-display); font-size: 36px; line-height: 40px; font-weight: 600; }
+.code { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 500; }
