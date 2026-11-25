@@ -164,3 +164,10 @@
   .mp-eqrij .mp-bevestig { grid-column: 1 / -1; }
 }
 .mp-bord.is-slepen .mp-balk { pointer-events: none; opacity: .75; }
+
+/* Publicatiestatus */
+.mp-publicatie { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border-radius: var(--radius-md); font-size: 14px; min-height: 52px; }
+.mp-publicatie > span { flex: 1; }
+.mp-publicatie.is-concept { background: var(--surface-sunken); color: var(--text); }
+.mp-publicatie.is-gewijzigd { background: var(--warning-soft); color: var(--warning); }
+.mp-publicatie.is-actueel { background: var(--success-soft); color: var(--success); }

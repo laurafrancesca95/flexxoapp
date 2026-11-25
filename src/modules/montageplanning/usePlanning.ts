@@ -2,8 +2,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { store } from "../../core/store";
 import { STANDAARD_FASEN, type Afwezigheid, type Inzet, type TeamWeek } from "./model";
+import type { Publicatie } from "./publicatie";
 
-const C = { inzet: "mp-inzet", teams: "mp-teams", afwezig: "mp-afwezig", instellingen: "mp-instellingen" } as const;
+const C = { inzet: "mp-inzet", teams: "mp-teams", afwezig: "mp-afwezig", instellingen: "mp-instellingen", publicaties: "mp-publicaties" } as const;
 
 interface Instellingen { id: "algemeen"; fasen: string[]; demoGevuld?: boolean }
 
@@ -12,6 +13,7 @@ export interface Planning {
   inzet: Inzet[];
   teams: TeamWeek[];
   afwezig: Afwezigheid[];
+  publicaties: Publicatie[];
   fasen: string[];
   demoGevuld: boolean;
   bewaarInzet(i: Inzet | Inzet[]): Promise<void>;
@@ -20,6 +22,7 @@ export interface Planning {
   bewaarAfwezig(a: Afwezigheid): Promise<void>;
   verwijderAfwezig(id: string): Promise<void>;
   bewaarFasen(f: string[]): Promise<void>;
+  publiceer(p: Publicatie | Publicatie[]): Promise<void>;
   markeerDemo(): Promise<void>;
   wisAlles(): Promise<void>;
 }
@@ -29,12 +32,15 @@ export function usePlanning(): Planning {
   const [inzet, setInzet] = useState<Inzet[]>([]);
   const [teams, setTeams] = useState<TeamWeek[]>([]);
   const [afwezig, setAfwezig] = useState<Afwezigheid[]>([]);
+  const [publicaties, setPublicaties] = useState<Publicatie[]>([]);
   const [inst, setInst] = useState<Instellingen>({ id: "algemeen", fasen: STANDAARD_FASEN });
 
   const laad = useCallback(async () => {
-    const [i, t, a, s] = await Promise.all([
+    const [i, t, a, s, p] = await Promise.all([
       store.get<Inzet>(C.inzet), store.get<TeamWeek>(C.teams), store.get<Afwezigheid>(C.afwezig), store.get<Instellingen>(C.instellingen),
+      store.get<Publicatie>(C.publicaties),
     ]);
+    setPublicaties(p);
     setInzet(i);
     setTeams(t);
     setAfwezig(a);
@@ -48,7 +54,7 @@ export function usePlanning(): Planning {
   const lijst = <T,>(x: T | T[]) => (Array.isArray(x) ? x : [x]);
 
   return {
-    geladen, inzet, teams, afwezig, fasen: inst.fasen, demoGevuld: !!inst.demoGevuld,
+    geladen, inzet, teams, afwezig, publicaties, fasen: inst.fasen, demoGevuld: !!inst.demoGevuld,
     async bewaarInzet(x) {
       const nieuw = lijst(x);
       for (const i of nieuw) await store.put(C.inzet, i);
@@ -78,6 +84,12 @@ export function usePlanning(): Planning {
       await store.put(C.instellingen, n);
       setInst(n);
     },
+    async publiceer(x) {
+      const nieuw = lijst(x);
+      for (const p of nieuw) await store.put(C.publicaties, p);
+      const ids = new Set(nieuw.map((p) => p.id));
+      setPublicaties((cur) => [...cur.filter((p) => !ids.has(p.id)), ...nieuw]);
+    },
     async markeerDemo() {
       const n = { ...inst, demoGevuld: true };
       await store.put(C.instellingen, n);
@@ -91,6 +103,7 @@ export function usePlanning(): Planning {
       setInzet([]);
       setTeams([]);
       setAfwezig([]);
+      setPublicaties([]);
       setInst({ id: "algemeen", fasen: STANDAARD_FASEN });
     },
   };

@@ -82,3 +82,28 @@ describe("automatisch voorstel", () => {
     expect(v[0].monteurs).toBe(2);
   });
 });
+
+import { maakPublicatie, weekInhoud, weekVanMonteur, wijzigingenSinds } from "../src/modules/montageplanning/publicatie";
+
+describe("publiceren", () => {
+  const teams: TeamWeek[] = [{ id: "2026-W49|1", week: "2026-W49", nummer: 1, leden: ["1", "2"], bouwleider: "1", voertuig: "Bus 1" }];
+  const a = nieuweInzet(project({ projectnummer: "A" }), 1, "2026-11-30", 2, STANDAARD_FASEN);
+  const voorstel = { ...nieuweInzet(project({ projectnummer: "B" }), 1, "2026-12-03", 2, STANDAARD_FASEN), voorstel: true };
+  const inhoud = () => weekInhoud("2026-11-30", [a, voorstel], teams, [], "2026-W49");
+
+  it("publiceert geen voorstellen en telt wijzigingen sinds publicatie", () => {
+    const p = maakPublicatie("2026-W49", "2026-11-30", inhoud(), undefined, "Planner");
+    expect(p.inzet.map((i) => i.projectnummer)).toEqual(["A"]);
+    expect(wijzigingenSinds(p, inhoud())).toBe(0);
+    const anders = weekInhoud("2026-11-30", [{ ...a, notitie: "Sleutel bij de portier" }], teams, [], "2026-W49");
+    expect(wijzigingenSinds(p, anders)).toBe(1);
+    const p2 = maakPublicatie("2026-W49", "2026-11-30", anders, p, "Planner");
+    expect(p2).toMatchObject({ versie: 2, gewijzigd: [a.id] });
+  });
+
+  it("toont de monteur alleen de inzet van zijn eigen team", () => {
+    const p = maakPublicatie("2026-W49", "2026-11-30", inhoud(), undefined, "Planner");
+    expect(weekVanMonteur(p, "2")?.inzet.map((i) => i.projectnummer)).toEqual(["A"]);
+    expect(weekVanMonteur(p, "9")?.team).toBeUndefined();
+  });
+});

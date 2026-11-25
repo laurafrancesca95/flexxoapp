@@ -26,7 +26,7 @@ Gebruikt door: Montageplanning, Montage, Logistiek, Productie, Productieplanning
 | Projectnummer | Tekst | Ja | Uniek projectnummer | `PRJ-0241` |
 | Omschrijving | Tekst | Ja | Korte projectomschrijving | `Pompskid 2x 15 kW` |
 | Klant | Tekst | Ja | Naam van de klant | `Zilvermeer Waterbeheer` |
-| Plaats | Tekst | Nee | Plaats van montage of levering | `Apeldoorn` |
+| Plaats | Tekst | Nee | Plaats van montage of levering | `Ede` |
 | Land | Tekst | Nee | Landcode (NL, BE, DE, PL) | `NL` |
 | Ordertype | Tekst | Ja | Nieuwbouw, Renovatie, Service of Levering | `Nieuwbouw` |
 | Status | Tekst | Ja | Te plannen, Gepland, In productie, Gereed voor transport, In montage, Gereed | `Te plannen` |
