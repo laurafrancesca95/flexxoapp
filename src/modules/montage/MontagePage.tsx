@@ -177,6 +177,9 @@ function OrderKaart({ i, d, p, groot, gewijzigd }: { i: Inzet; d: Dag; p?: Monta
 // ---- Orderinformatie ---------------------------------------------------------------------
 function ProjectDetail({ p, nr, pnr, publicaties, mensen }: { p?: Montageproject; nr: string; pnr?: string; publicaties: Publicatie[]; mensen: Map<string, Medewerker> }) {
   useEffect(() => { window.scrollTo(0, 0); }, [nr]);
+  // VC-uren zijn alleen voor de planning, niet voor monteurs.
+  const { user } = useSession();
+  const magVcZien = user?.role === "montageplanner" || user?.role === "manager";
   // Alle gepubliceerde dagen van dit project, over de weken heen, voor het team van de monteur (of alle teams).
   const items = publicaties.flatMap((pub) => pub.inzet.filter((i) => i.projectnummer === nr).map((i) => ({ i, pub })));
   const mijnTeams = new Set(publicaties.flatMap((pub) => pub.teams.filter((t) => pnr && t.leden.includes(pnr)).map((t) => `${pub.week}|${t.nummer}`)));
@@ -220,7 +223,7 @@ function ProjectDetail({ p, nr, pnr, publicaties, mensen }: { p?: Montageproject
               <div><dt className="label">Silo</dt><dd>{p.silo ?? "–"}</dd></div>
               <div><dt className="label">Soort</dt><dd>{p.soort}</dd></div>
               <div><dt className="label">Materiaal op locatie</dt><dd>{datumLang(dagVan(p.gewensteStart))}</dd></div>
-              <div><dt className="label">Begrote uren</dt><dd>{uren(p.vcUrenWerk)} werk · {uren(p.vcUrenReis)} reis</dd></div>
+              {magVcZien && <div><dt className="label">Begrote uren (alleen planner)</dt><dd>{uren(p.vcUrenWerk)} werk · {uren(p.vcUrenReis)} reis</dd></div>}
               <div><dt className="label">Werkvoorbereider</dt><dd>{p.werkvoorbereider ?? "–"}</dd></div>
             </dl>
             {p.opmerking && <p className="body-sm mt-opmerking"><Icon name="file" />{p.opmerking}</p>}

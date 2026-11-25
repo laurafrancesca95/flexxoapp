@@ -36,8 +36,8 @@ const JN = (b) => (b ? "J" : "N");
 // ---- Medewerkers ------------------------------------------------------------
 const VOORNAMEN = ["Daan", "Sem", "Lucas", "Milan", "Thijs", "Jesse", "Bram", "Ruben", "Niels", "Joris", "Sanne", "Lotte", "Femke", "Iris", "Noor", "Eva", "Anouk", "Wouter", "Koen", "Stijn", "Pieter", "Gijs", "Mees", "Floor", "Tess", "Lars", "Jelle", "Mark", "Bas", "Rick"];
 const ACHTERNAMEN = ["de Vries", "Jansen", "van Dijk", "Bakker", "Visser", "Smit", "Meijer", "de Boer", "Mulder", "de Groot", "Bos", "Vos", "Peters", "Hendriks", "van Leeuwen", "Dekker", "Brouwer", "de Wit", "Dijkstra", "Kok", "Vermeulen", "van den Berg", "Willems", "Hoekstra", "Schouten", "Kuipers", "Prins", "Huisman", "Post", "Verhoeven"];
-const DE = [["Jonas", "Becker"], ["Felix", "Hoffmann"], ["Lukas", "Schneider"]];
-const PL = [["Piotr", "Nowak"], ["Tomasz", "Kowalski"], ["Marek", "Wiśniewski"], ["Kamil", "Zieliński"]];
+const DE = [["Jonas", "Becker"], ["Felix", "Hoffmann"], ["Matthias", "Schneider"]];
+const PL = [["Piotr", "Nowak"], ["Paweł", "Kowalski"], ["Marek", "Wiśniewski"], ["Kamil", "Zieliński"]];
 const WERKPLEKKEN = ["Zaagstraat", "Lasstraat 1", "Lasstraat 2", "Assemblage", "Spuiterij", "Eindcontrole"];
 
 const used = new Set();
@@ -106,7 +106,7 @@ const verlofsaldo = medewerkers.map((m) => {
 
 // ---- Projecten --------------------------------------------------------------
 const KLANTEN = ["Zilvermeer Waterbeheer", "Kwartelhof Industrie", "Dommelstroom Energie", "Hazelaar Zuivel", "Noorderlicht Procestechniek", "Brugwachter Bouw", "Peelrand Agro", "Lindeboom Utiliteit", "Rietkraag Installaties", "Kempenveld Food", "Ooievaar Logistiek", "Ganzenpoort Vastgoed", "Duinzicht Recreatie", "Merelhof Zorg", "Wilgenrijk Gemeentewerken", "Sterrenwacht Techniek", "Rheinblick Anlagenbau", "Sonnenfeld Haustechnik", "Wiśla Instal", "Schelde Klimaat"];
-const PLAATSEN = { NL: ["Apeldoorn", "Zwolle", "Eindhoven", "Tilburg", "Utrecht", "Amersfoort", "Deventer", "Breda", "Nijmegen", "Groningen", "Venlo", "Almelo"], DE: ["Kleve", "Münster", "Düsseldorf"], BE: ["Antwerpen", "Hasselt"], PL: ["Poznań"] };
+const PLAATSEN = { NL: ["Ede", "Zwolle", "Eindhoven", "Tilburg", "Utrecht", "Amersfoort", "Deventer", "Breda", "Nijmegen", "Groningen", "Venlo", "Almelo"], DE: ["Kleve", "Münster", "Düsseldorf"], BE: ["Antwerpen", "Hasselt"], PL: ["Poznań"] };
 const OMS = ["Pompskid 2x 15 kW", "Doseerinstallatie", "Stalen frame met bordes", "Leidingwerk RVS DN80", "Behuizing met deuren", "Warmtewisselaarunit", "Filterunit 3-traps", "Bordes en trap", "Opslagtank 10 m³ met frame", "Drukverhogingsinstallatie", "Gasregelstation", "Containerinstallatie", "Ombouw bestaande installatie", "Service en inspectie", "Leveringspakket onderdelen"];
 const STATUS_MIX = [
   ["Te plannen", 12], ["Gepland", 9], ["In productie", 8], ["Gereed voor transport", 4], ["In montage", 5], ["Gereed", 4],
@@ -213,7 +213,7 @@ const LOCATIES = [
   ["DE", "49808", "Lingen"], ["DE", "46325", "Borken"], ["DE", "26169", "Friesoythe"], ["DE", "48431", "Rheine"], ["BE", "2440", "Geel"],
   ["BE", "8600", "Diksmuide"], ["PL", "62-300", "Września"], ["PL", "64-100", "Leszno"], ["FR", "35000", "Rennes"], ["DK", "7400", "Herning"],
 ];
-const MKLANTEN = { NL: ["Groengas Heidehof", "Biovergisting De Kievit", "Mestverwerking Oostveld", "Energieboerderij Lindehoeve"], DE: ["Agrarenergie Moorland GmbH", "Biogas Emsaue GmbH", "Hofenergie Sandkamp KG"], BE: ["Biostroom Kempen NV", "Vergisting Westhoek"], PL: ["Biogazownia Zielone Pole Sp. z o.o."], FR: ["Méthanisation Brocéliande SAS"], DK: ["Herning Biogas ApS"] };
+const MKLANTEN = { NL: ["Groengas Heidehof", "Biovergisting De Kievit", "Mestverwerking Oostveld", "Energieboerderij Lindehoeve"], DE: ["Agrarenergie Moorland GmbH", "Biogas Emsaue GmbH", "Hofenergie Sandkamp KG"], BE: ["Biostroom Kempen NV", "Vergisting Westhoek"], PL: ["Zielone Pole Energia Sp. z o.o."], FR: ["Méthanisation Brocéliande SAS"], DK: ["Herning Biogas ApS"] };
 const SILO = ["Beton gegoten H6 m", "Beton gegoten H8 m", "Beton elementen H6 m", "Staal H7 m", "Beton gegoten H5 m", "Staal plaat H8 m"];
 const MSTATUS = ["In productie", "In productie", "Productiepapier geprint", "Intern gereed", "Verzending compleet"];
 const WVB = ["MV", "LB", "JK", "SD"];

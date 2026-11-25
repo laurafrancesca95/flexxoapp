@@ -55,7 +55,7 @@ export const EXPORTS: Record<ExportId, ExportSpec> = {
       { key: "projectnummer", header: "Projectnummer", type: "text", required: true, description: "Uniek projectnummer", example: "PRJ-0241" },
       { key: "omschrijving", header: "Omschrijving", type: "text", required: true, description: "Korte projectomschrijving", example: "Pompskid 2x 15 kW" },
       { key: "klant", header: "Klant", type: "text", required: true, description: "Naam van de klant", example: "Zilvermeer Waterbeheer" },
-      { key: "plaats", header: "Plaats", type: "text", description: "Plaats van montage of levering", example: "Apeldoorn" },
+      { key: "plaats", header: "Plaats", type: "text", description: "Plaats van montage of levering", example: "Ede" },
       { key: "land", header: "Land", type: "text", description: "Landcode (NL, BE, DE, PL)", example: "NL" },
       { key: "ordertype", header: "Ordertype", type: "text", required: true, description: "Nieuwbouw, Renovatie, Service of Levering", example: "Nieuwbouw" },
       { key: "status", header: "Status", type: "text", required: true, description: "Te plannen, Gepland, In productie, Gereed voor transport, In montage, Gereed", example: "Te plannen" },
