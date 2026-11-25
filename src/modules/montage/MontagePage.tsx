@@ -10,6 +10,7 @@ import { AANREIS, dagVan, isWeekend, isoWeek, maandagVan, naarDate, plusDagen, w
 import { weekVanMonteur, type Publicatie } from "../montageplanning/publicatie";
 import { usePlanning } from "../montageplanning/usePlanning";
 import { useDemoPlanning } from "../montageplanning/demo";
+import { UrenbriefjeKaart, UrenbriefjePage } from "./UrenbriefjePage";
 import "./montage.css";
 
 const vandaag = () => dagVan(new Date());
@@ -49,6 +50,14 @@ export function MontagePage({ path }: { path: string }) {
     </label>
   );
 
+  if (path.startsWith("/montage/uren")) {
+    return (
+      <div className="mt">
+        {kiezer}
+        {pnr && <UrenbriefjePage key={pnr} path={path} pnr={pnr} publicaties={planning.publicaties} projecten={projecten} />}
+      </div>
+    );
+  }
   if (projectnr) {
     return <ProjectDetail p={projecten.get(projectnr)} nr={projectnr} pnr={pnr} publicaties={planning.publicaties} mensen={mensen} />;
   }
@@ -110,6 +119,8 @@ function MijnWeek({ pnr, kiezer, publicaties, projecten, mensen }: {
           <span className="caption fx-muted">Gepubliceerd {new Date(pub.gepubliceerdOp).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
         </section>
       )}
+
+      {pub && mijn?.team && <UrenbriefjeKaart week={week} pnr={pnr} />}
 
       {vandaagItems.length > 0 && (
         <section className="mt-vandaag" aria-label="Vandaag">

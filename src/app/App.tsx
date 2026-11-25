@@ -60,7 +60,7 @@ export function App() {
       title = MODULES[id].label;
       eyebrow = "Module";
       page = id === "montageplanning" ? <MontageplanningPage /> : id === "montage" ? <MontagePage path={path} /> : <ModulePreview id={id} />;
-      if (id === "montage") title = path.includes("/project/") ? "Orderinformatie" : "Mijn week";
+      if (id === "montage") title = path.includes("/project/") ? "Orderinformatie" : path.includes("/uren") ? "Urenbriefje" : "Mijn week";
     } else {
       title = MODULES[id].label;
       page = <Alert tone="warning" title="Geen toegang">Deze module hoort niet bij de rol {role.label.toLowerCase()}. <a href="#/">Terug naar het overzicht</a>.</Alert>;
