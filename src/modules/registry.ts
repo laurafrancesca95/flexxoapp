@@ -35,7 +35,7 @@ export const MODULES: Record<ModuleId, ModuleDef> = {
       "Bijzonderheden voor het team noteren, direct zichtbaar in hun weekplanning",
       "Meerwerk per project bijhouden en na gereed de calculatieopzet voor Bemet klaarzetten",
     ],
-    exports: ["projecten", "medewerkers", "calculatieregels"],
+    exports: ["montageprojecten", "medewerkers", "calculatieregels"],
   },
   montage: {
     id: "montage",

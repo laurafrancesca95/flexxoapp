@@ -41,7 +41,8 @@ export type ExportId =
   | "medewerkers"
   | "verlofsaldo"
   | "productieorders"
-  | "calculatieregels";
+  | "calculatieregels"
+  | "montageprojecten";
 
 export const EXPORTS: Record<ExportId, ExportSpec> = {
   projecten: {
@@ -142,6 +143,33 @@ export const EXPORTS: Record<ExportId, ExportSpec> = {
       { key: "hoogte", header: "Hoogte (mm)", type: "number", description: "Afmeting colli", example: "1800" },
     ],
   },
+  montageprojecten: {
+    id: "montageprojecten",
+    label: "Montageprojecten",
+    fileName: "Bemet_Montageprojecten.xlsx",
+    description: "Eén regel per montageproject: gewenste startdatum op locatie en de voorcalculatie voor werkuren en reisuren.",
+    usedBy: ["Montageplanning", "Montage"],
+    columns: [
+      { key: "projectnummer", header: "Projectnummer", type: "text", required: true, description: "Uniek projectnummer", example: "PRJ-0412" },
+      { key: "omschrijving", header: "Omschrijving", type: "text", required: true, description: "Wat er gemonteerd wordt (product en maat)", example: "Dak Ø22,5 m x 6,0 m" },
+      { key: "soort", header: "Soort", type: "text", required: true, description: "Nieuwbouw, Reparatie of Restwerk", example: "Nieuwbouw" },
+      { key: "klant", header: "Klant", type: "text", required: true, description: "Naam van de klant", example: "Groengas Heidehof" },
+      { key: "land", header: "Land", type: "text", required: true, description: "Landcode", example: "NL" },
+      { key: "postcode", header: "Postcode", type: "text", description: "Postcode van de bouwplaats", example: "7741" },
+      { key: "plaats", header: "Plaats", type: "text", required: true, description: "Plaats van de bouwplaats", example: "Coevorden" },
+      { key: "silo", header: "Silo", type: "text", description: "Type en hoogte van de silo waarop gemonteerd wordt", example: "Beton gegoten H6 m" },
+      { key: "lining", header: "Inclusief lining", type: "boolean", description: "Lining hoort bij de montage (J/N)", example: "N" },
+      { key: "status", header: "Status", type: "text", required: true, description: "In productie, Productiepapier geprint, Intern gereed of Verzending compleet", example: "In productie" },
+      { key: "werkvoorbereider", header: "Werkvoorbereider", type: "text", description: "Initialen werkvoorbereider", example: "MV" },
+      { key: "gewensteStart", header: "Gewenste start montage", type: "date", required: true, description: "Dag waarop het materiaal op locatie is en de montage kan starten", example: "07-12-2026" },
+      { key: "vcUrenWerk", header: "VC-uren werk", type: "number", required: true, description: "Voorgecalculeerde montage-uren (werk), totaal voor alle monteurs", example: "240" },
+      { key: "vcUrenReis", header: "VC-uren reis", type: "number", required: true, description: "Voorgecalculeerde reisuren, totaal voor alle monteurs (los van de 10 werkuren per dag)", example: "36" },
+      { key: "fix", header: "Vast afgesproken", type: "boolean", description: "Startdatum is vast afgesproken met de klant (J/N)", example: "J" },
+      { key: "hoogwerkers", header: "Hoogwerkers", type: "number", description: "Aantal hoogwerkers volgens de calculatie", example: "2" },
+      { key: "kraan", header: "Kraan nodig", type: "boolean", description: "Kraan nodig voor de mastmontage (J/N)", example: "J" },
+      { key: "opmerking", header: "Opmerking", type: "text", description: "Laatste notitie van de planning in Bemet", example: "Klant levert hoogwerkers." },
+    ],
+  },
 };
 
 export const EXPORT_LIST: ExportSpec[] = Object.values(EXPORTS);
@@ -170,10 +198,17 @@ export interface Calculatieregel {
   aantal: number; eenheid?: string; gewicht?: number; lengte?: number; breedte?: number; hoogte?: number;
 }
 
+export interface Montageproject {
+  projectnummer: string; omschrijving: string; soort: string; klant: string; land: string; postcode?: string;
+  plaats: string; silo?: string; lining?: boolean; status: string; werkvoorbereider?: string; gewensteStart: Date;
+  vcUrenWerk: number; vcUrenReis: number; fix?: boolean; hoogwerkers?: number; kraan?: boolean; opmerking?: string;
+}
+
 export interface ExportRows {
   projecten: Project[];
   medewerkers: Medewerker[];
   verlofsaldo: Verlofsaldo[];
   productieorders: Productieorder[];
   calculatieregels: Calculatieregel[];
+  montageprojecten: Montageproject[];
 }

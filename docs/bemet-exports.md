@@ -113,3 +113,30 @@ Gebruikt door: Montage, Montageplanning, Logistiek
 | Breedte (mm) | Getal | Nee | Afmeting colli | `1200` |
 | Hoogte (mm) | Getal | Nee | Afmeting colli | `1800` |
 
+## Montageprojecten
+
+`Bemet_Montageprojecten.xlsx` · Eén regel per montageproject: gewenste startdatum op locatie en de voorcalculatie voor werkuren en reisuren.
+
+Gebruikt door: Montageplanning, Montage
+
+| Kolom | Type | Verplicht | Omschrijving | Voorbeeld |
+| --- | --- | --- | --- | --- |
+| Projectnummer | Tekst | Ja | Uniek projectnummer | `PRJ-0412` |
+| Omschrijving | Tekst | Ja | Wat er gemonteerd wordt (product en maat) | `Dak Ø22,5 m x 6,0 m` |
+| Soort | Tekst | Ja | Nieuwbouw, Reparatie of Restwerk | `Nieuwbouw` |
+| Klant | Tekst | Ja | Naam van de klant | `Groengas Heidehof` |
+| Land | Tekst | Ja | Landcode | `NL` |
+| Postcode | Tekst | Nee | Postcode van de bouwplaats | `7741` |
+| Plaats | Tekst | Ja | Plaats van de bouwplaats | `Coevorden` |
+| Silo | Tekst | Nee | Type en hoogte van de silo waarop gemonteerd wordt | `Beton gegoten H6 m` |
+| Inclusief lining | J/N | Nee | Lining hoort bij de montage (J/N) | `N` |
+| Status | Tekst | Ja | In productie, Productiepapier geprint, Intern gereed of Verzending compleet | `In productie` |
+| Werkvoorbereider | Tekst | Nee | Initialen werkvoorbereider | `MV` |
+| Gewenste start montage | Datum (dd-mm-jjjj) | Ja | Dag waarop het materiaal op locatie is en de montage kan starten | `07-12-2026` |
+| VC-uren werk | Getal | Ja | Voorgecalculeerde montage-uren (werk), totaal voor alle monteurs | `240` |
+| VC-uren reis | Getal | Ja | Voorgecalculeerde reisuren, totaal voor alle monteurs (los van de 10 werkuren per dag) | `36` |
+| Vast afgesproken | J/N | Nee | Startdatum is vast afgesproken met de klant (J/N) | `J` |
+| Hoogwerkers | Getal | Nee | Aantal hoogwerkers volgens de calculatie | `2` |
+| Kraan nodig | J/N | Nee | Kraan nodig voor de mastmontage (J/N) | `J` |
+| Opmerking | Tekst | Nee | Laatste notitie van de planning in Bemet | `Klant levert hoogwerkers.` |
+

@@ -33,10 +33,10 @@ export function statsFor(user: AppUser, data: DataSnapshot): Stat[] {
   switch (user.role) {
     case "montageplanner":
     case "manager": {
-      const teplannen = projecten.filter((p) => p.status === "Te plannen" && (p.vcUrenMontage ?? 0) > 0);
-      const urgent = teplannen.filter((p) => p.montageStart && p.montageStart <= new Date(Date.now() + 14 * 864e5));
-      out.push({ label: "Nog te plannen", value: teplannen.length, unit: "projecten", foot: `${urgent.length} met start binnen 2 weken` });
-      out.push({ label: "VC-uren te plannen", value: num(sum(teplannen.map((p) => p.vcUrenMontage))), unit: "u", foot: "Montage" });
+      const montage = data.rows.montageprojecten;
+      const urgent = montage.filter((p) => p.gewensteStart <= new Date(Date.now() + 14 * 864e5) && p.gewensteStart >= new Date(Date.now() - 7 * 864e5));
+      out.push({ label: "Montageprojecten", value: montage.length, unit: "projecten", foot: `${urgent.length} met start rond de komende 2 weken` });
+      out.push({ label: "VC-uren montage", value: num(sum(montage.map((p) => p.vcUrenWerk))), unit: "u", foot: `Plus ${num(sum(montage.map((p) => p.vcUrenReis)))} u reis` });
       out.push({ label: "In montage", value: projecten.filter((p) => p.status === "In montage").length, unit: "projecten" });
       if (user.role === "manager") {
         out.push({ label: "In productie", value: productieorders.filter((o) => o.status === "In productie").length, unit: "orders" });

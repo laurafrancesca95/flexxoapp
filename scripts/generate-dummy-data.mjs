@@ -67,13 +67,17 @@ mw("Montageplanner", "Planning", { manager: mgrMontage.personeelsnummer });
 mw("Montageplanner", "Planning", { manager: mgrMontage.personeelsnummer, uren: 32 });
 mw("Productieplanner", "Planning", { manager: mgrProductie.personeelsnummer });
 const foreign = [...DE.map((n) => [n, "DE"]), ...PL.map((n) => [n, "PL"])];
-for (let t = 1; t <= 4; t++) {
+// Zeven montageteams van 2 of 3 man (hoofdmonteur = bouwleider) plus twee invallers zonder vast team.
+const TEAMGROOTTE = [3, 3, 2, 3, 3, 2, 3];
+TEAMGROOTTE.forEach((n, i) => {
+  const t = i + 1;
   mw("Hoofdmonteur", "Montage", { team: `Team ${t}`, manager: mgrMontage.personeelsnummer, uren: 40 });
-  for (let i = 0; i < 3; i++) {
-    const f = t > 2 && foreign.length ? foreign.shift() : null;
+  for (let k = 1; k < n; k++) {
+    const f = t > 3 && foreign.length > 1 ? foreign.shift() : null;
     mw("Monteur", "Montage", { team: `Team ${t}`, manager: mgrMontage.personeelsnummer, uren: 40, ...(f ? { naam: f[0], taal: f[1] } : {}) });
   }
-}
+});
+for (let k = 0; k < 2; k++) mw("Monteur", "Montage", { manager: mgrMontage.personeelsnummer, uren: 40 });
 const PRODFUNCTIE = { Zaagstraat: "Plaatwerker", "Lasstraat 1": "Lasser", "Lasstraat 2": "Lasser", Assemblage: "Samensteller", Spuiterij: "Spuiter", Eindcontrole: "Kwaliteitscontroleur" };
 for (const w of WERKPLEKKEN) {
   const n = w === "Eindcontrole" ? 1 : 2;
@@ -102,7 +106,7 @@ const verlofsaldo = medewerkers.map((m) => {
 
 // ---- Projecten --------------------------------------------------------------
 const KLANTEN = ["Zilvermeer Waterbeheer", "Kwartelhof Industrie", "Dommelstroom Energie", "Hazelaar Zuivel", "Noorderlicht Procestechniek", "Brugwachter Bouw", "Peelrand Agro", "Lindeboom Utiliteit", "Rietkraag Installaties", "Kempenveld Food", "Ooievaar Logistiek", "Ganzenpoort Vastgoed", "Duinzicht Recreatie", "Merelhof Zorg", "Wilgenrijk Gemeentewerken", "Sterrenwacht Techniek", "Rheinblick Anlagenbau", "Sonnenfeld Haustechnik", "Wiśla Instal", "Schelde Klimaat"];
-const PLAATSEN = { NL: ["Apeldoorn", "Zwolle", "Eindhoven", "Tilburg", "Utrecht", "Amersfoort", "Deventer", "Breda", "Nijmegen", "Groningen", "Venlo", "Hengelo"], DE: ["Kleve", "Münster", "Düsseldorf"], BE: ["Antwerpen", "Hasselt"], PL: ["Poznań"] };
+const PLAATSEN = { NL: ["Apeldoorn", "Zwolle", "Eindhoven", "Tilburg", "Utrecht", "Amersfoort", "Deventer", "Breda", "Nijmegen", "Groningen", "Venlo", "Almelo"], DE: ["Kleve", "Münster", "Düsseldorf"], BE: ["Antwerpen", "Hasselt"], PL: ["Poznań"] };
 const OMS = ["Pompskid 2x 15 kW", "Doseerinstallatie", "Stalen frame met bordes", "Leidingwerk RVS DN80", "Behuizing met deuren", "Warmtewisselaarunit", "Filterunit 3-traps", "Bordes en trap", "Opslagtank 10 m³ met frame", "Drukverhogingsinstallatie", "Gasregelstation", "Containerinstallatie", "Ombouw bestaande installatie", "Service en inspectie", "Leveringspakket onderdelen"];
 const STATUS_MIX = [
   ["Te plannen", 12], ["Gepland", 9], ["In productie", 8], ["Gereed voor transport", 4], ["In montage", 5], ["Gereed", 4],
@@ -196,6 +200,47 @@ for (const p of projecten) {
   }
 }
 
+// ---- Montageprojecten -------------------------------------------------------
+// Vaste seed: dezelfde projectnummers elke dag, zodat een opgeslagen testplanning blijft kloppen.
+// De datums schuiven mee met de huidige week.
+let mseed = 7331;
+const mrnd = () => ((mseed = (mseed * 16807) % 2147483647) - 1) / 2147483646;
+const mpick = (xs) => xs[Math.floor(mrnd() * xs.length)];
+const mint = (a, b) => a + Math.floor(mrnd() * (b - a + 1));
+const LOCATIES = [
+  ["NL", "7741", "Coevorden"], ["NL", "7881", "Emmer-Compascuum"], ["NL", "8102", "Raalte"], ["NL", "7721", "Dalfsen"], ["NL", "6602", "Wijchen"],
+  ["NL", "9641", "Veendam"], ["NL", "5751", "Deurne"], ["NL", "8401", "Gorredijk"], ["DE", "49377", "Vechta"], ["DE", "49661", "Cloppenburg"],
+  ["DE", "49808", "Lingen"], ["DE", "46325", "Borken"], ["DE", "26169", "Friesoythe"], ["DE", "48431", "Rheine"], ["BE", "2440", "Geel"],
+  ["BE", "8600", "Diksmuide"], ["PL", "62-300", "Września"], ["PL", "64-100", "Leszno"], ["FR", "35000", "Rennes"], ["DK", "7400", "Herning"],
+];
+const MKLANTEN = { NL: ["Groengas Heidehof", "Biovergisting De Kievit", "Mestverwerking Oostveld", "Energieboerderij Lindehoeve"], DE: ["Agrarenergie Moorland GmbH", "Biogas Emsaue GmbH", "Hofenergie Sandkamp KG"], BE: ["Biostroom Kempen NV", "Vergisting Westhoek"], PL: ["Biogazownia Zielone Pole Sp. z o.o."], FR: ["Méthanisation Brocéliande SAS"], DK: ["Herning Biogas ApS"] };
+const SILO = ["Beton gegoten H6 m", "Beton gegoten H8 m", "Beton elementen H6 m", "Staal H7 m", "Beton gegoten H5 m", "Staal plaat H8 m"];
+const MSTATUS = ["In productie", "In productie", "Productiepapier geprint", "Intern gereed", "Verzending compleet"];
+const WVB = ["MV", "LB", "JK", "SD"];
+const OPM = ["", "", "Klant levert hoogwerkers.", "Start vast afgesproken met de klant.", "Mestzak eerst leeg, bevestiging volgt.", "Klant regelt de kraan.", "Toegang bouwplaats via achteringang.", "Gasdichtheidstest aansluitend plannen."];
+const montageprojecten = [];
+for (let i = 0; i < 30; i++) {
+  const [land, postcode, plaats] = mpick(LOCATIES);
+  const soort = i % 9 === 4 ? "Reparatie" : i % 11 === 7 ? "Restwerk" : "Nieuwbouw";
+  const diam = (mint(30, 76) / 2).toFixed(1).replace(".", ",");
+  const hoog = mpick(["5,0", "6,0", "7,0", "8,0"]);
+  const aantal = mpick([1, 1, 1, 1, 2, 3]);
+  const omschrijving = soort === "Nieuwbouw" ? `${aantal > 1 ? `${aantal}x ` : ""}Dak Ø${diam} m x ${hoog} m` : soort === "Reparatie" ? `Reparatie dak Ø${diam} m` : "Restwerkzaamheden";
+  const vcUrenWerk = soort === "Nieuwbouw" ? mint(10, 55) * 10 * Math.min(aantal, 2) : mint(2, 6) * 10;
+  const ver = land === "NL" ? 0 : ["DE", "BE"].includes(land) ? 1 : 2;
+  const vcUrenReis = [mint(2, 4), mint(4, 8), mint(10, 16)][ver] * (soort === "Nieuwbouw" ? 3 : 2);
+  const gewensteStart = addDays(monday, mint(-10, 38));
+  const opm = mpick(OPM);
+  montageprojecten.push({
+    projectnummer: `PRJ-0${400 + i}`, omschrijving, soort, klant: mpick(MKLANTEN[land]), land, postcode, plaats,
+    silo: soort === "Nieuwbouw" ? mpick(SILO) : null, lining: soort === "Nieuwbouw" && mrnd() < 0.2,
+    status: gewensteStart < monday ? "Verzending compleet" : mpick(MSTATUS), werkvoorbereider: mpick(WVB), gewensteStart,
+    vcUrenWerk, vcUrenReis, fix: mrnd() < 0.4 || /vast/.test(opm), hoogwerkers: soort === "Nieuwbouw" ? mpick([1, 2, 2, 2]) : mpick([0, 1]),
+    kraan: soort === "Nieuwbouw" && mrnd() < 0.5, opmerking: opm || null,
+  });
+}
+montageprojecten.sort((a, b) => a.gewensteStart - b.gewensteStart);
+
 // ---- Schrijven --------------------------------------------------------------
 // Kopnamen MOETEN gelijk zijn aan src/core/data/exports.ts (de test controleert dit).
 const sheets = {
@@ -218,6 +263,10 @@ const sheets = {
   "Bemet_Calculatieregels.xlsx": [
     ["Projectnummer", "Regel", "Soort", "Artikelcode", "Omschrijving", "Aantal", "Eenheid", "Gewicht (kg)", "Lengte (mm)", "Breedte (mm)", "Hoogte (mm)"],
     calculatieregels.map((c) => [c.projectnummer, c.regel, c.soort, c.artikelcode, c.omschrijving, c.aantal, c.eenheid, c.gewicht, c.lengte, c.breedte, c.hoogte]),
+  ],
+  "Bemet_Montageprojecten.xlsx": [
+    ["Projectnummer", "Omschrijving", "Soort", "Klant", "Land", "Postcode", "Plaats", "Silo", "Inclusief lining", "Status", "Werkvoorbereider", "Gewenste start montage", "VC-uren werk", "VC-uren reis", "Vast afgesproken", "Hoogwerkers", "Kraan nodig", "Opmerking"],
+    montageprojecten.map((m) => [m.projectnummer, m.omschrijving, m.soort, m.klant, m.land, m.postcode, m.plaats, m.silo, JN(m.lining), m.status, m.werkvoorbereider, dateCell(m.gewensteStart), m.vcUrenWerk, m.vcUrenReis, JN(m.fix), m.hoogwerkers, JN(m.kraan), m.opmerking]),
   ],
 };
 
