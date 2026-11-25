@@ -1,0 +1,63 @@
+/* Module Montage (monteur). Tablet-first, alleen brandbook-tokens. */
+.mt { display: flex; flex-direction: column; gap: var(--space-4); max-width: 820px; }
+.mt-kiezer { display: flex; flex-direction: column; gap: 6px; max-width: 360px; padding: var(--space-3); border: 1px dashed var(--border-control); border-radius: var(--radius-md); }
+.mt-weekkop { display: flex; align-items: center; gap: var(--space-3); }
+.mt-weektitel { display: flex; flex-direction: column; flex: 1; text-align: center; }
+.mt-weektitel .h2 { margin: 0; }
+.mt-prev .fx-icon, .mt-terug .fx-icon { transform: rotate(180deg); }
+.mt-terug { display: inline-flex; margin-right: 4px; }
+
+.mt-team, .mt-blok { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+.mt-team .h3, .mt-blok .h3, .mt-blok .h1 { margin: 0; }
+.mt-leden { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.mt-leden li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--surface-sunken); font-size: 15px; }
+.mt-leden li.is-bl { background: var(--brand-soft); color: var(--brand-soft-text); font-weight: 650; }
+.mt-bl { font: 700 10px/1 var(--font-sans); text-transform: uppercase; letter-spacing: .03em; padding: 3px 6px; border-radius: var(--radius-pill); background: var(--brand); color: var(--on-brand); }
+
+.mt-vandaag { display: flex; flex-direction: column; gap: var(--space-2); }
+.mt-vandaag h2 { margin: 0; color: var(--brand-text); text-transform: uppercase; letter-spacing: .04em; }
+.mt-dagen { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.mt-dag { display: flex; flex-direction: column; gap: var(--space-2); }
+.mt-dagkop { display: flex; align-items: center; gap: var(--space-2); }
+.mt-dagkop b { font-weight: 650; }
+.mt-dagkop b::first-letter, .mt-planning li .label::first-letter { text-transform: uppercase; }
+.mt-dag.is-weekend .mt-dagkop b { color: var(--text-muted); }
+.mt-vrij { margin: 0; padding: var(--space-3) var(--space-4); border: 1px dashed var(--border); border-radius: var(--radius-md); }
+
+.mt-order { appearance: none; text-align: left; font: inherit; color: var(--text); width: 100%; display: flex; flex-direction: column; gap: 6px; padding: var(--space-4); min-height: 88px; background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--brand); border-radius: var(--radius-lg); cursor: pointer; box-shadow: var(--shadow-1); transition: box-shadow .15s, border-color .15s; }
+.mt-order:hover { box-shadow: var(--shadow-2); border-color: var(--brand); }
+.mt-order:active { background: var(--brand-soft); }
+.mt-order:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.mt-order.is-groot { padding: var(--space-5); border-left-width: 8px; }
+.mt-order-kop { display: flex; align-items: center; gap: var(--space-2); }
+.mt-order-titel { flex: 1; font: 650 18px/24px var(--font-sans); }
+.mt-order.is-groot .mt-order-titel { font: 600 22px/28px var(--font-display); }
+.mt-chevron { color: var(--text-muted); }
+.mt-fase { align-self: flex-start; padding: 4px 10px; border-radius: var(--radius-sm); background: var(--brand-soft); color: var(--brand-soft-text); font-weight: 650; font-size: 15px; }
+.mt-fase.is-reis { background: var(--accent-soft); color: var(--accent); }
+.mt-notitie { display: flex; gap: var(--space-2); align-items: flex-start; padding: var(--space-2) var(--space-3); background: var(--info-soft); color: var(--info); border-radius: var(--radius-md); font-size: 14px; }
+.mt-notitie .fx-icon { flex: none; }
+
+.mt-eq { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.mt-eq li { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+.mt-eq li .fx-icon { width: 18px; height: 18px; flex: none; }
+.mt-eq li.is-ok { color: var(--success); }
+.mt-eq li.is-open { color: var(--warning); }
+.mt-eq-status { font-weight: 600; }
+
+.mt-projectkop .body { margin: 0; }
+.mt-knoppen { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.mt-knoppen .fx-icon { margin-right: 6px; }
+.mt-dl { display: grid; gap: var(--space-3); margin: 0; }
+@media (min-width: 640px) { .mt-dl { grid-template-columns: 1fr 1fr; } }
+.mt-dl dd { margin: 2px 0 0; }
+.mt-opmerking { display: flex; gap: var(--space-2); margin: 0; padding: var(--space-2) var(--space-3); background: var(--surface-sunken); border-radius: var(--radius-md); }
+.mt-bijzonder { border-left: 5px solid var(--accent); }
+.mt-bijzonder p { margin: 0; }
+.mt-planning { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.mt-planning li { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: var(--space-3); padding: 10px 0; border-bottom: 1px solid var(--border); }
+.mt-planning li:last-child { border-bottom: 0; }
+
+.mt-planning li.is-today { background: var(--brand-soft); margin: 0 calc(-1 * var(--space-2)); padding: 10px var(--space-2); border-radius: var(--radius-sm); }
+.mt-volgt { background: var(--surface-sunken); border-style: dashed; }
+@media (max-width: 639px) { .mt-planning li { grid-template-columns: 1fr; gap: 2px; } }

@@ -12,6 +12,8 @@ import {
   werkdagenIn, werkdagenNodig, type Afwezigheid, type Dag, type Equipment, type Inzet, type TeamWeek,
 } from "./model";
 import { usePlanning, type Planning } from "./usePlanning";
+import { maakPublicatie, weekInhoud, wijzigingenSinds } from "./publicatie";
+import { useDemoPlanning } from "./demo";
 import "./montageplanning.css";
 
 type Ctx = {
@@ -42,7 +44,7 @@ const DT = { project: "application/x-mp-project", inzet: "application/x-mp-inzet
 const heeft = (e: DragEvent, t: string) => e.dataTransfer.types.includes(t);
 
 export function MontageplanningPage() {
-  const { data } = useSession();
+  const { data, user } = useSession();
   const planning = usePlanning();
   const [maandag, setMaandag] = useState(() => maandagVan(vandaag()));
   const [open, setOpen] = useState<string | null>(null);
@@ -64,30 +66,7 @@ export function MontageplanningPage() {
   }, [planning.geladen, rows, week, nieuw]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Eerste bezoek in de testomgeving: vorige, deze en volgende week alvast gevuld, zodat het bord er echt uitziet.
-  const seeding = useRef(false);
-  useEffect(() => {
-    if (!planning.geladen || !rows || planning.demoGevuld || seeding.current || !rows.montageprojecten.length) return;
-    seeding.current = true;
-    (async () => {
-      let alleTeams = [...planning.teams];
-      let inzet = [...planning.inzet];
-      const nu = maandagVan(vandaag());
-      for (const m of [plusDagen(nu, -7), nu, plusDagen(nu, 7)]) {
-        const t = teamsVoorWeek(weekSleutel(m), alleTeams, monteurs).teams;
-        alleTeams = [...alleTeams.filter((x) => x.week !== weekSleutel(m)), ...t];
-        const v = maakVoorstel({ projecten: rows.montageprojecten, inzet, teams: t, afwezig: [], maandag: m, fasen: planning.fasen });
-        v.forEach((i, k) => {
-          i.voorstel = false;
-          i.equipment = i.equipment.map((e, j) => ({ ...e, bevestigd: m < nu || (k + j) % 3 !== 1 }));
-        });
-        inzet = [...inzet, ...v];
-      }
-      await planning.bewaarTeams(alleTeams);
-      await planning.bewaarInzet(inzet);
-      await planning.markeerDemo();
-    })();
-  }, [planning.geladen, rows, planning.demoGevuld]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  const seeding = useDemoPlanning(planning);
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && (setKies(null), setOpen(null), setFasenOpen(false));
     window.addEventListener("keydown", k);
@@ -107,6 +86,13 @@ export function MontageplanningPage() {
   const teplannen = rows.montageprojecten.filter((p) => !gepland.has(p.projectnummer)).sort((a, b) => +a.gewensteStart - +b.gewensteStart);
   const dezeWeek = planning.inzet.filter((i) => i.dagen.some((d) => d.datum >= dagen[0] && d.datum <= dagen[6]));
   const voorstellen = planning.inzet.filter((i) => i.voorstel);
+  const publicatie = planning.publicaties.find((p) => p.id === week);
+  const inhoud = weekInhoud(maandag, planning.inzet, planning.teams, planning.afwezig, week);
+  const wijzigingen = wijzigingenSinds(publicatie, inhoud);
+  const publiceer = async () => {
+    await planning.publiceer(maakPublicatie(week, maandag, inhoud, publicatie, user?.name ?? "Planner"));
+    setMelding(`Week ${isoWeek(maandag).week} is gepubliceerd. De monteurs zien hun planning nu in de module Montage.`);
+  };
 
   // --- acties ---
   const teamGrootte = (nr: number, w = week) => {
@@ -213,6 +199,20 @@ export function MontageplanningPage() {
             </Button>
           )}
         </div>
+      </div>
+
+      <div className={`mp-publicatie ${!publicatie ? "is-concept" : wijzigingen ? "is-gewijzigd" : "is-actueel"}`}>
+        <Icon name={!publicatie ? "info" : wijzigingen ? "alert" : "check-circle"} />
+        <span>
+          {!publicatie
+            ? "Concept: de monteurs zien deze week nog niet."
+            : `Gepubliceerd ${new Date(publicatie.gepubliceerdOp).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} door ${publicatie.door} (versie ${publicatie.versie}).`}
+          {publicatie && (wijzigingen ? ` ${wijzigingen} ${wijzigingen === 1 ? "wijziging" : "wijzigingen"} nog niet zichtbaar voor de monteurs.` : " De monteurs zien de actuele planning.")}
+          {voorstellen.length > 0 && " Voorstellen worden pas gepubliceerd als je ze accepteert."}
+        </span>
+        {(!publicatie || wijzigingen > 0) && (
+          <Button size="sm" variant="primary" icon="send" onClick={publiceer}>{publicatie ? "Opnieuw publiceren" : "Week publiceren"}</Button>
+        )}
       </div>
 
       {melding && (
@@ -596,7 +596,7 @@ function TePlannen({ projecten, maandag, kies, onKies }: { projecten: Montagepro
 // ---- Zijpaneel: één inzet -----------------------------------------------------------
 function Paneel({ titel, sub, onClose, children, voet }: { titel: ReactNode; sub?: ReactNode; onClose(): void; children: ReactNode; voet?: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => ref.current?.focus(), []);
+  useEffect(() => { ref.current?.focus(); }, []);
   return (
     <div className="mp-overlay" onClick={onClose}>
       <div className="mp-paneel" role="dialog" aria-modal="true" aria-label={typeof titel === "string" ? titel : "Details"} onClick={(e) => e.stopPropagation()} ref={ref} tabIndex={-1}>
