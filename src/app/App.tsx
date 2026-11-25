@@ -5,6 +5,7 @@ import { MODULES } from "../modules/registry";
 import { Home } from "../pages/Home";
 import { Login } from "../pages/Login";
 import { ModulePreview } from "../pages/ModulePreview";
+import { MontageplanningPage } from "../modules/montageplanning/MontageplanningPage";
 import { Gegevens } from "../pages/Gegevens";
 import { Profiel } from "../pages/Profiel";
 import { useSession } from "./session";
@@ -57,7 +58,7 @@ export function App() {
     if (canSee(user.role, id)) {
       title = MODULES[id].label;
       eyebrow = "Module";
-      page = <ModulePreview id={id} />;
+      page = id === "montageplanning" ? <MontageplanningPage /> : <ModulePreview id={id} />;
     } else {
       title = MODULES[id].label;
       page = <Alert tone="warning" title="Geen toegang">Deze module hoort niet bij de rol {role.label.toLowerCase()}. <a href="#/">Terug naar het overzicht</a>.</Alert>;
