@@ -3,15 +3,15 @@
 // Spelregels (afgestemd 26-11-2026):
 // - Saldo rekent in uren (zoals de Bemet-export). Een verlofdag telt 8 uur.
 // - Alleen werkdagen tellen: geen zaterdag, zondag of officiële feestdag.
-// - Vakantie en ADV gaan van het saldo af. Bijzonder verlof, zorgverlof en onbetaald verlof niet.
+// - Vakantie, ADV en TVT (tijd voor tijd, opgebouwd met overuren) gaan van hun eigen saldo af. Bijzonder verlof, zorgverlof en onbetaald verlof niet.
 // - De manager die in Beheer aan de medewerker gekoppeld is, keurt goed. Zonder koppeling: de manager uit Bemet.
 // - Voor monteurs kan de montageplanner advies geven; de manager beslist.
 import type { Medewerker, Verlofsaldo } from "../../core/data/exports";
 import { dagVan, isWeekend, naarDate, plusDagen, type Dag } from "../montageplanning/model";
 
 // ---- Soorten verlof -------------------------------------------------------------
-export type VerlofSoort = "vakantie" | "adv" | "bijzonder" | "zorg" | "onbetaald";
-export type Saldopot = "vakantie" | "adv";
+export type VerlofSoort = "vakantie" | "adv" | "tvt" | "bijzonder" | "zorg" | "onbetaald";
+export type Saldopot = "vakantie" | "adv" | "tvt";
 
 export interface SoortDef {
   id: VerlofSoort;
@@ -26,6 +26,7 @@ export interface SoortDef {
 export const SOORTEN: SoortDef[] = [
   { id: "vakantie", label: "Vakantie", uitleg: "Gaat van je vakantiesaldo af", saldo: "vakantie" },
   { id: "adv", label: "ADV", uitleg: "Gaat van je ADV-saldo af", saldo: "adv" },
+  { id: "tvt", label: "TVT opnemen", uitleg: "Tijd voor tijd: je opgebouwde overuren", saldo: "tvt" },
   {
     id: "bijzonder", label: "Bijzonder verlof", uitleg: "Volgens de cao, gaat niet van je saldo af",
     redenen: ["Eigen huwelijk of geregistreerd partnerschap", "Huwelijk familielid", "Overlijden of begrafenis", "Verhuizing", "Bevalling partner", "Doktersbezoek", "Anders"],
@@ -33,6 +34,7 @@ export const SOORTEN: SoortDef[] = [
   { id: "zorg", label: "Zorgverlof", uitleg: "Zorg voor een naaste, gaat niet van je saldo af", redenen: ["Kortdurend zorgverlof", "Calamiteitenverlof", "Langdurend zorgverlof"] },
   { id: "onbetaald", label: "Onbetaald verlof", uitleg: "Wordt ingehouden op je salaris" },
 ];
+export const POT_LABEL: Record<Saldopot, string> = { vakantie: "Vakantiesaldo", adv: "ADV-saldo", tvt: "TVT-saldo" };
 export const soortDef = (id: VerlofSoort) => SOORTEN.find((s) => s.id === id)!;
 
 // ---- Aanvraag --------------------------------------------------------------------
@@ -158,6 +160,8 @@ export interface Saldo {
   jaar: number;
   vakantie: Pot;
   adv?: Pot;
+  /** Tijd voor tijd: overuren die als vrije tijd zijn opgebouwd. */
+  tvt?: Pot;
 }
 
 /** Uren van een aanvraag die van een pot afgaan, beperkt tot één jaar. */
@@ -174,14 +178,15 @@ export function berekenSaldo(rij: Verlofsaldo | undefined, aanvragen: Verlofaanv
   };
   const vakantie = pot("vakantie", rij.recht, rij.opgenomen, Math.max(0, rij.recht - rij.opgenomen - rij.saldo));
   const adv = rij.advRecht ? pot("adv", rij.advRecht, rij.advOpgenomen ?? 0, 0) : undefined;
-  return { jaar: rij.jaar || jaar, vakantie, adv };
+  const tvt = rij.tvtOpgebouwd != null ? pot("tvt", rij.tvtOpgebouwd, rij.tvtOpgenomen ?? 0, 0) : undefined;
+  return { jaar: rij.jaar || jaar, vakantie, adv, tvt };
 }
 
 /** Controle bij het aanvragen: genoeg saldo? */
 export function saldoNa(saldo: Saldo | null, soort: VerlofSoort, uren: number) {
   const s = soortDef(soort).saldo;
   if (!s || !saldo) return null;
-  const pot = s === "adv" ? saldo.adv : saldo.vakantie;
+  const pot = saldo[s];
   if (!pot) return { pot: undefined, na: -uren, tekort: true };
   const na = pot.beschikbaar - uren;
   return { pot, na, tekort: na < 0 };

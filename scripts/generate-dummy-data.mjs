@@ -104,7 +104,10 @@ const verlofsaldo = medewerkers.map((m) => {
   // ADV: alleen bij een 40-urige werkweek (13 dagen van 4 uur per jaar).
   const advRecht = m.contracturen === 40 ? 52 : null;
   const advOpgenomen = advRecht ? Math.min(advRecht, Math.round(advRecht * yearFrac / 4) * 4) : null;
-  return { personeelsnummer: m.personeelsnummer, jaar, recht, opgenomen, aangevraagd, saldo: recht - opgenomen - aangevraagd, advRecht, advOpgenomen };
+  // TVT (tijd voor tijd): overuren van monteurs, in kwartieren.
+  const tvtOpgebouwd = m.afdeling === "Montage" ? int(4, 140) / 2 : null;
+  const tvtOpgenomen = tvtOpgebouwd ? Math.min(tvtOpgebouwd, int(0, 6) * 4) : null;
+  return { personeelsnummer: m.personeelsnummer, jaar, recht, opgenomen, aangevraagd, saldo: recht - opgenomen - aangevraagd, advRecht, advOpgenomen, tvtOpgebouwd, tvtOpgenomen };
 });
 
 // ---- Projecten --------------------------------------------------------------
@@ -256,8 +259,8 @@ const sheets = {
     medewerkers.map((m) => [m.personeelsnummer, m.voornaam, m.achternaam, m.email, m.afdeling, m.functie, m.manager || null, m.team || null, m.werkplek || null, m.contracturen, m.taal]),
   ],
   "Bemet_Verlofsaldo.xlsx": [
-    ["Personeelsnummer", "Jaar", "Verlofrecht (u)", "Opgenomen (u)", "Aangevraagd (u)", "Saldo (u)", "ADV-recht (u)", "ADV opgenomen (u)"],
-    verlofsaldo.map((v) => [v.personeelsnummer, v.jaar, v.recht, v.opgenomen, v.aangevraagd, v.saldo, v.advRecht, v.advOpgenomen]),
+    ["Personeelsnummer", "Jaar", "Verlofrecht (u)", "Opgenomen (u)", "Aangevraagd (u)", "Saldo (u)", "ADV-recht (u)", "ADV opgenomen (u)", "TVT opgebouwd (u)", "TVT opgenomen (u)"],
+    verlofsaldo.map((v) => [v.personeelsnummer, v.jaar, v.recht, v.opgenomen, v.aangevraagd, v.saldo, v.advRecht, v.advOpgenomen, v.tvtOpgebouwd, v.tvtOpgenomen]),
   ],
   "Bemet_Productieorders.xlsx": [
     ["Ordernummer", "Projectnummer", "Werkplek", "Volgorde", "Omschrijving", "VC-uren", "Geplande start", "Geplande eind", "Status"],

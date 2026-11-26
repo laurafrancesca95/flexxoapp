@@ -63,6 +63,13 @@ describe("saldo", () => {
     expect(s.adv).toMatchObject({ recht: 52, inAanvraag: 8, beschikbaar: 4 });
     expect(saldoNa(s, "adv", 8)).toMatchObject({ na: -4, tekort: true });
     expect(saldoNa(s, "zorg", 8)).toBeNull();
+    expect(s.tvt).toBeUndefined();
+  });
+  it("TVT: opgebouwde overuren als eigen saldo", () => {
+    const s = berekenSaldo({ ...rij, tvtOpgebouwd: 22.5, tvtOpgenomen: 8 }, [aanvraag({ soort: "tvt", deel: "uren", uren: 4 })], 2026)!;
+    expect(s.tvt).toMatchObject({ recht: 22.5, opgenomen: 8, inAanvraag: 4, beschikbaar: 10.5 });
+    expect(s.vakantie.inAanvraag).toBe(0);
+    expect(saldoNa(s, "tvt", 12)).toMatchObject({ na: -1.5, tekort: true });
   });
   it("telt alleen uren in het saldojaar", () => {
     const s = berekenSaldo(rij, [aanvraag({ status: "aangevraagd", van: "2026-12-31", tot: "2027-01-04" })], 2026)!;
