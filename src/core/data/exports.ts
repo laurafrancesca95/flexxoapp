@@ -94,7 +94,7 @@ export const EXPORTS: Record<ExportId, ExportSpec> = {
     id: "verlofsaldo",
     label: "Verlofsaldo",
     fileName: "Bemet_Verlofsaldo.xlsx",
-    description: "Verlofrecht en -opname per medewerker voor het lopende jaar.",
+    description: "Verlofrecht en -opname (vakantie en ADV) per medewerker voor het lopende jaar.",
     usedBy: ["Collega"],
     columns: [
       { key: "personeelsnummer", header: "Personeelsnummer", type: "text", required: true, description: "Koppeling met Medewerkers", example: "1007" },
@@ -103,6 +103,8 @@ export const EXPORTS: Record<ExportId, ExportSpec> = {
       { key: "opgenomen", header: "Opgenomen (u)", type: "number", required: true, description: "Al opgenomen uren", example: "152" },
       { key: "aangevraagd", header: "Aangevraagd (u)", type: "number", description: "Goedgekeurd maar nog niet opgenomen", example: "16" },
       { key: "saldo", header: "Saldo (u)", type: "number", required: true, description: "Resterende uren", example: "48" },
+      { key: "advRecht", header: "ADV-recht (u)", type: "number", description: "ADV-uren voor dit jaar (leeg = geen ADV)", example: "52" },
+      { key: "advOpgenomen", header: "ADV opgenomen (u)", type: "number", description: "Al opgenomen ADV-uren", example: "36" },
     ],
   },
   productieorders: {
@@ -188,6 +190,7 @@ export interface Medewerker {
 }
 export interface Verlofsaldo {
   personeelsnummer: string; jaar: number; recht: number; opgenomen: number; aangevraagd?: number; saldo: number;
+  advRecht?: number; advOpgenomen?: number;
 }
 export interface Productieorder {
   ordernummer: string; projectnummer: string; werkplek: string; volgorde?: number; omschrijving: string;

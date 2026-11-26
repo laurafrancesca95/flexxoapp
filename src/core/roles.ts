@@ -45,3 +45,5 @@ export const ROLES: RoleDef[] = [
 
 export const roleById = (id: RoleId) => ROLES.find((r) => r.id === id)!;
 export const canSee = (role: RoleId, module: ModuleId) => roleById(role).modules.includes(module);
+/** Wie het scherm Beheer ziet (managers koppelen aan medewerkers). Later een eigen Entra-rol "Beheerder". */
+export const canManage = (role: RoleId) => role === "manager";
