@@ -10,7 +10,7 @@ import { dagVan, naarDate, plusDagen, type Dag } from "../montageplanning/model"
 import { usePlanning, type Planning } from "../montageplanning/usePlanning";
 import { useDemoPlanning } from "../montageplanning/demo";
 import {
-  SOORTEN, STATUS_LABEL, VERLOFDAG_UREN, berekenSaldo, berekenUren, dagenTekst, nieuwId, opDagen, saldoNa, soortDef, urenTekst,
+  POT_LABEL, SOORTEN, STATUS_LABEL, VERLOFDAG_UREN, berekenSaldo, berekenUren, dagenTekst, nieuwId, opDagen, saldoNa, soortDef, urenTekst,
   type Dagdeel, type Pot, type Saldo, type Verlofaanvraag, type VerlofSoort,
 } from "./verlof";
 import { geplandOp, type Botsing } from "./planningCheck";
@@ -122,7 +122,8 @@ function MijnVerlof({ pnr, verlof, onAanvragen, onMelding }: { pnr: string; verl
           <div className="fx-stats">
             <SaldoTegel label="Vakantie beschikbaar" pot={saldo.vakantie} />
             {saldo.adv && <SaldoTegel label="ADV beschikbaar" pot={saldo.adv} />}
-            <StatTile label="Wacht op akkoord" value={urenTekst((saldo.vakantie.inAanvraag + (saldo.adv?.inAanvraag ?? 0))).replace(" u", "")} unit="u" foot={`${mijn.filter((a) => a.status === "aangevraagd").length} aanvragen`} />
+            {saldo.tvt && <SaldoTegel label="TVT beschikbaar" pot={saldo.tvt} van="opgebouwd" />}
+            <StatTile label="Wacht op akkoord" value={urenTekst(potten(saldo).reduce((x, [, p]) => x + p.inAanvraag, 0)).replace(" u", "")} unit="u" foot={`${mijn.filter((a) => a.status === "aangevraagd").length} aanvragen`} />
           </div>
           <SaldoOpbouw saldo={saldo} />
         </>
@@ -146,21 +147,24 @@ function MijnVerlof({ pnr, verlof, onAanvragen, onMelding }: { pnr: string; verl
   );
 }
 
-function SaldoTegel({ label, pot }: { label: string; pot: Pot }) {
+/** De saldo's die deze medewerker heeft, met kolomnaam. */
+const potten = (s: Saldo) => ([["Vakantie", s.vakantie], ["ADV", s.adv], ["TVT", s.tvt]] as [string, Pot | undefined][]).filter((x): x is [string, Pot] => !!x[1]);
+
+function SaldoTegel({ label, pot, van = "van" }: { label: string; pot: Pot; van?: string }) {
   return (
     <StatTile
       label={label}
       value={new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 }).format(pot.beschikbaar)}
       unit="u"
       progress={pot.recht ? Math.max(0, Math.min(100, (pot.beschikbaar / pot.recht) * 100)) : 0}
-      foot={`${dagenTekst(pot.beschikbaar, VERLOFDAG_UREN)} van ${urenTekst(pot.recht)}`}
+      foot={`${dagenTekst(pot.beschikbaar, VERLOFDAG_UREN)} · ${van} ${urenTekst(pot.recht)}`}
     />
   );
 }
 
 function SaldoOpbouw({ saldo }: { saldo: Saldo }) {
   const regels: [string, (p: Pot) => number, string?][] = [
-    ["Verlofrecht dit jaar", (p) => p.recht],
+    ["Recht dit jaar (TVT: opgebouwd met overuren)", (p) => p.recht],
     ["Opgenomen (Bemet)", (p) => -p.opgenomen],
     ["Gepland (Bemet)", (p) => -p.gepland],
     ["Goedgekeurd in de app", (p) => -p.goedgekeurd, "Nog niet in Bemet verwerkt"],
@@ -171,12 +175,12 @@ function SaldoOpbouw({ saldo }: { saldo: Saldo }) {
     <details className="cl-opbouw">
       <summary className="body-strong">Hoe is je saldo opgebouwd?</summary>
       <table className="cl-tabel">
-        <thead><tr><th scope="col"></th><th scope="col" className="fx-num">Vakantie</th>{saldo.adv && <th scope="col" className="fx-num">ADV</th>}</tr></thead>
+        <thead><tr><th scope="col"></th>{potten(saldo).map(([n]) => <th key={n} scope="col" className="fx-num">{n}</th>)}</tr></thead>
         <tbody>
           {regels.map(([l, fn, hint]) => (
-            <tr key={l}><th scope="row">{l}{hint && <span className="caption fx-muted"> · {hint}</span>}</th><td className="fx-num">{f(fn(saldo.vakantie))}</td>{saldo.adv && <td className="fx-num">{f(fn(saldo.adv))}</td>}</tr>
+            <tr key={l}><th scope="row">{l}{hint && <span className="caption fx-muted"> · {hint}</span>}</th>{potten(saldo).map(([n, p]) => <td key={n} className="fx-num">{f(fn(p))}</td>)}</tr>
           ))}
-          <tr className="cl-totaal"><th scope="row">Beschikbaar</th><td className="fx-num">{urenTekst(saldo.vakantie.beschikbaar)}</td>{saldo.adv && <td className="fx-num">{urenTekst(saldo.adv.beschikbaar)}</td>}</tr>
+          <tr className="cl-totaal"><th scope="row">Beschikbaar</th>{potten(saldo).map(([n, p]) => <td key={n} className="fx-num">{urenTekst(p.beschikbaar)}</td>)}</tr>
         </tbody>
       </table>
       <p className="caption fx-muted">Een verlofdag telt {VERLOFDAG_UREN} uur. Weekenden en feestdagen tellen niet mee.</p>
@@ -260,7 +264,7 @@ function Aanvragen({ pnr, verlof, planning, onKlaar }: { pnr: string; verlof: Ve
       <fieldset className="cl-fs">
         <legend className="h3">Soort verlof</legend>
         <div className="cl-soorten" role="radiogroup">
-          {SOORTEN.filter((s) => s.id !== "adv" || saldo?.adv).map((s) => (
+          {SOORTEN.filter((s) => !s.saldo || s.saldo === "vakantie" || saldo?.[s.saldo]).map((s) => (
             <button key={s.id} type="button" role="radio" aria-checked={soort === s.id} className={`cl-soort ${soort === s.id ? "is-aan" : ""}`} onClick={() => { setSoort(s.id); setReden(""); }}>
               <b>{s.label}</b>
               <span className="caption">{s.uitleg}</span>
@@ -315,7 +319,7 @@ function Aanvragen({ pnr, verlof, planning, onKlaar }: { pnr: string; verlof: Ve
                 <span className="body-sm"> · {b.dagen.length} {b.dagen.length === 1 ? "werkdag" : "werkdagen"} ({dagenTekst(b.totaal, VERLOFDAG_UREN)})</span>
               </div>
               {b.overgeslagen.length > 0 && <span className="body-sm fx-muted">Telt niet mee: {b.overgeslagen.map((o) => `${o.reden} (${kort(o.datum)})`).join(", ")}</span>}
-              {na && na.pot && <span className={`body-sm ${na.tekort ? "cl-rood" : ""}`}>{def.label}saldo daarna: <b>{urenTekst(na.na)}</b>{na.tekort ? " · je komt tekort, je manager ziet dit" : ""}</span>}
+              {na && na.pot && <span className={`body-sm ${na.tekort ? "cl-rood" : ""}`}>{POT_LABEL[def.saldo!]} daarna: <b>{urenTekst(na.na)}</b>{na.tekort ? " · je komt tekort, je manager ziet dit" : ""}</span>}
               {!def.saldo && <span className="body-sm fx-muted">Gaat niet van je saldo af.</span>}
             </>
           )}
@@ -358,7 +362,8 @@ function Context({ a, verlof, planning }: { a: Verlofaanvraag; verlof: VerlofDat
   const m = verlof.mensen.get(a.personeelsnummer);
   const dagen = a.dagen.map((d) => d.datum);
   const saldo = berekenSaldo(data!.rows.verlofsaldo.find((v) => v.personeelsnummer === a.personeelsnummer), verlof.aanvragen, new Date().getFullYear());
-  const pot = soortDef(a.soort).saldo === "adv" ? saldo?.adv : soortDef(a.soort).saldo ? saldo?.vakantie : undefined;
+  const sp = soortDef(a.soort).saldo;
+  const pot = sp ? saldo?.[sp] : undefined;
   // Wat er na goedkeuren overblijft: deze aanvraag telt nu al mee als "wacht op akkoord".
   const na = pot ? pot.beschikbaar : undefined;
   const botsingen = m?.afdeling === "Montage" ? geplandOp(a.personeelsnummer, dagen, planning.inzet, planning.teams) : [];
@@ -374,7 +379,7 @@ function Context({ a, verlof, planning }: { a: Verlofaanvraag; verlof: VerlofDat
       {pot && (
         <span className={`body-sm ${na! < 0 ? "cl-rood" : ""}`}>
           <Icon name={na! < 0 ? "alert" : "check-circle"} />
-          {soortDef(a.soort).label}saldo na goedkeuren: <b>{urenTekst(na!)}</b> ({dagenTekst(na!, VERLOFDAG_UREN)})
+          {POT_LABEL[sp!]} na goedkeuren: <b>{urenTekst(na!)}</b> ({dagenTekst(na!, VERLOFDAG_UREN)})
         </span>
       )}
       {botsingen.length > 0 && <BotsingMelding botsingen={botsingen} />}
