@@ -171,3 +171,8 @@
 .mp-publicatie.is-concept { background: var(--surface-sunken); color: var(--text); }
 .mp-publicatie.is-gewijzigd { background: var(--warning-soft); color: var(--warning); }
 .mp-publicatie.is-actueel { background: var(--success-soft); color: var(--success); }
+
+/* Verlof uit de module Collega */
+.mp-vl { display: inline-flex; align-items: center; padding: 0 6px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 700; line-height: 16px; white-space: nowrap; }
+.mp-vl.is-goedgekeurd { background: var(--danger-soft); color: var(--danger); border: 1px solid currentColor; }
+.mp-vl.is-aangevraagd { color: var(--warning); border: 1px dashed currentColor; background: repeating-linear-gradient(135deg, var(--warning-soft) 0 4px, transparent 4px 8px); }

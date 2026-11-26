@@ -15,7 +15,8 @@
   "dependencies": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "read-excel-file": "9.3.20"
+    "read-excel-file": "9.3.20",
+    "write-excel-file": "4.1.1"
   },
   "devDependencies": {
     "@types/node": "22.20.5",
@@ -24,7 +25,6 @@
     "@vitejs/plugin-react": "6.3.0",
     "typescript": "5.9.3",
     "vite": "8.3.8",
-    "vitest": "5.1.1",
-    "write-excel-file": "4.1.1"
+    "vitest": "5.1.1"
   }
 }

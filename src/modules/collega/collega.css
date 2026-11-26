@@ -1,0 +1,88 @@
+/* Module Collega (verlof) en Beheer. Telefoon-first, alleen brandbook-tokens. */
+.cl { display: flex; flex-direction: column; gap: var(--space-4); max-width: 960px; }
+.cl h2, .cl h3 { margin: 0; }
+.cl-kop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.cl-kop p { margin: 4px 0 0; max-width: 60ch; }
+
+/* Subnavigatie */
+.cl-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px; border-radius: calc(var(--radius-md) + 4px); background: var(--surface-sunken); scrollbar-width: none; }
+.cl-tab { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: var(--radius-md); color: var(--text-muted); font: 600 15px/1 var(--font-sans); text-decoration: none; white-space: nowrap; }
+.cl-tab:hover { color: var(--text); }
+.cl-tab.is-actief { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+.cl-tab:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.cl-teller { min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--radius-pill); background: var(--brand); color: var(--on-brand); font: 700 12px/22px var(--font-sans); text-align: center; }
+
+/* Lijsten */
+.cl-lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.cl-regel, .cl-kaart { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--border-control); border-radius: var(--radius-lg); }
+.cl-regel.is-goedgekeurd { border-left-color: var(--brand); }
+.cl-regel.is-aangevraagd { border-left-color: var(--warning); }
+.cl-regel.is-afgewezen { border-left-color: var(--danger); }
+.cl-regel.is-ingetrokken { opacity: .7; }
+.cl-kaart { border-left-color: var(--warning); box-shadow: var(--shadow-1); gap: var(--space-3); }
+.cl-regel-hoofd { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+.cl-regel-titel { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cl-regel-titel b { font-weight: 650; }
+.cl-regel-voet { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--space-3); }
+.cl-regel-voet .fx-btn { margin-left: auto; }
+.cl-quote { margin: 0; font-style: italic; }
+.cl-reactie, .cl-advies { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--info-soft); color: var(--info); }
+.cl-reactie.is-af { background: var(--danger-soft); color: var(--danger); }
+.cl-advies.is-ok { background: var(--success-soft); color: var(--success); }
+.cl-advies.is-niet { background: var(--warning-soft); color: var(--warning); }
+.cl-advies.is-wacht { background: var(--surface-sunken); color: var(--text-muted); }
+.cl-reactie .fx-icon, .cl-advies .fx-icon { flex: none; }
+.cl-wat { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px var(--space-3); }
+.cl-wat-soort { padding: 3px 10px; border-radius: var(--radius-sm); background: var(--brand-soft); color: var(--brand-soft-text); font-weight: 650; font-size: 14px; }
+.cl-context { display: flex; flex-direction: column; gap: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+.cl-context > span { display: flex; align-items: center; gap: 6px; }
+.cl-context .fx-icon { width: 18px; height: 18px; flex: none; }
+.cl-afwijzen { display: flex; flex-direction: column; gap: var(--space-3); }
+.cl-leeg { margin: 0; padding: var(--space-3) var(--space-4); border: 1px dashed var(--border); border-radius: var(--radius-md); }
+.cl-eerder summary, .cl-opbouw summary { cursor: pointer; padding: var(--space-2) 0; min-height: 44px; display: flex; align-items: center; }
+.cl-eerder .cl-lijst { margin-top: var(--space-2); }
+.cl-rood { color: var(--danger); }
+
+/* Saldo-opbouw */
+.cl-opbouw { padding: 0 var(--space-4) var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.cl-tabel { width: 100%; border-collapse: collapse; font-size: 15px; }
+.cl-tabel th, .cl-tabel td { padding: 8px 0; border-bottom: 1px solid var(--border); text-align: left; font-weight: 400; }
+.cl-tabel thead th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
+.cl-tabel .fx-num { text-align: right; padding-left: var(--space-4); white-space: nowrap; }
+.cl-totaal th, .cl-totaal td { font-weight: 700 !important; border-bottom: 0; }
+
+/* Aanvraagformulier */
+.cl-form { display: flex; flex-direction: column; gap: var(--space-5); }
+.cl-fs { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.cl-fs legend { margin-bottom: var(--space-3); padding: 0; }
+.cl-soorten { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.cl-soort { appearance: none; text-align: left; font: inherit; color: var(--text); display: flex; flex-direction: column; gap: 4px; min-height: 72px; padding: var(--space-3); background: var(--surface); border: 1.5px solid var(--border-control); border-radius: var(--radius-md); cursor: pointer; }
+.cl-soort b { font-weight: 650; }
+.cl-soort .caption { color: var(--text-muted); }
+.cl-soort:hover { border-color: var(--brand); }
+.cl-soort.is-aan { border-color: var(--brand); background: var(--brand-soft); box-shadow: inset 0 0 0 1px var(--brand); }
+.cl-soort.is-aan .caption { color: var(--brand-soft-text); }
+.cl-soort:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.cl-seg { display: grid; grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 640px) { .cl-seg { display: inline-grid; grid-auto-flow: column; grid-template-columns: none; align-self: flex-start; } }
+.cl-som { display: flex; flex-direction: column; gap: 4px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--brand-soft); color: var(--text); }
+.cl-som.is-fout { background: var(--surface-sunken); color: var(--text-muted); }
+.cl-som.is-fout span { display: flex; gap: 6px; align-items: center; }
+.cl-som-getal { font: 600 24px/1.2 var(--font-display); }
+.cl-verstuur { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.cl-verstuur p { margin: 0; }
+@media (min-width: 640px) { .cl-verstuur { flex-direction: row; align-items: center; justify-content: space-between; } }
+
+/* Beheer */
+.cl-filters { display: grid; gap: var(--space-3); align-items: end; }
+@media (min-width: 640px) { .cl-filters { grid-template-columns: 2fr 1fr auto; } }
+.cl-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; cursor: pointer; }
+.cl-check input, .cl-kolom-check input { width: 20px; height: 20px; accent-color: var(--brand); }
+.cl-bulk { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3); background: var(--brand-soft); border: 1px solid var(--brand); border-radius: var(--radius-md); }
+.cl-bulk .fx-select { width: auto; min-width: 220px; flex: 1; }
+.cl-beheer td { vertical-align: middle; }
+.cl-beheer .fx-select { min-width: 220px; }
+.cl-beheer tr.is-leeg td { background: var(--danger-soft); }
+.cl-kolom-check { width: 44px; }
+.cl-link { appearance: none; border: 0; background: none; padding: 0; color: var(--accent); font: inherit; text-decoration: underline; cursor: pointer; }
+.cl-exports { margin: 0; padding-left: 1.2em; }

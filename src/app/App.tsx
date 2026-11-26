@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
 import { Alert, AppShell, type NavItem } from "../brand";
-import { roleById, canSee, type ModuleId } from "../core/roles";
+import { roleById, canSee, canManage, type ModuleId } from "../core/roles";
 import { MODULES } from "../modules/registry";
 import { Home } from "../pages/Home";
 import { Login } from "../pages/Login";
 import { ModulePreview } from "../pages/ModulePreview";
 import { MontageplanningPage } from "../modules/montageplanning/MontageplanningPage";
 import { MontagePage } from "../modules/montage/MontagePage";
+import { CollegaPage } from "../modules/collega/CollegaPage";
+import { Beheer } from "../pages/Beheer";
 import { Gegevens } from "../pages/Gegevens";
 import { Profiel } from "../pages/Profiel";
 import { useSession } from "./session";
@@ -45,6 +47,7 @@ export function App() {
     ...role.modules.map((id, i) => ({
       id: `/${id}`, label: MODULES[id].label, icon: MODULES[id].icon, href: href(`/${id}`), tab: i < 4, tabLabel: MODULES[id].tabLabel,
     })),
+    ...(canManage(user.role) ? [{ group: "Beheer" }, { id: "/beheer", label: "Beheer", icon: "users" as const, href: href("/beheer"), tabLabel: "Beheer" }] : []),
     ...(isTestMode ? [{ group: "Testomgeving" }, { id: "/gegevens", label: "Gegevens", icon: "file" as const, href: href("/gegevens"), tabLabel: "Gegevens" }] : []),
   ];
 
@@ -59,12 +62,16 @@ export function App() {
     if (canSee(user.role, id)) {
       title = MODULES[id].label;
       eyebrow = "Module";
-      page = id === "montageplanning" ? <MontageplanningPage /> : id === "montage" ? <MontagePage path={path} /> : <ModulePreview id={id} />;
+      page = id === "montageplanning" ? <MontageplanningPage /> : id === "montage" ? <MontagePage path={path} /> : id === "collega" ? <CollegaPage path={path} /> : <ModulePreview id={id} />;
       if (id === "montage") title = path.includes("/project/") ? "Orderinformatie" : path.includes("/uren") ? "Urenbriefje" : "Mijn week";
+      if (id === "collega") title = "Verlof";
     } else {
       title = MODULES[id].label;
       page = <Alert tone="warning" title="Geen toegang">Deze module hoort niet bij de rol {role.label.toLowerCase()}. <a href="#/">Terug naar het overzicht</a>.</Alert>;
     }
+  } else if (seg === "beheer") {
+    title = "Beheer";
+    page = canManage(user.role) ? <Beheer /> : <Alert tone="warning" title="Geen toegang">Beheer is alleen voor managers. <a href="#/">Terug naar het overzicht</a>.</Alert>;
   } else if (seg === "gegevens") {
     title = "Gegevens";
     eyebrow = "Testomgeving";
@@ -77,7 +84,7 @@ export function App() {
     page = <Alert tone="info">Deze pagina bestaat niet. <a href="#/">Terug naar het overzicht</a>.</Alert>;
   }
 
-  const active = seg in MODULES || seg === "gegevens" ? `/${seg}` : path === "/" ? "/" : undefined;
+  const active = seg in MODULES || seg === "gegevens" || seg === "beheer" ? `/${seg}` : path === "/" ? "/" : undefined;
 
   return (
     <div ref={shellRef} className="app-frame">

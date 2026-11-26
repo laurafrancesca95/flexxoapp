@@ -14,12 +14,16 @@ import {
 import { usePlanning, type Planning } from "./usePlanning";
 import { maakPublicatie, weekInhoud, wijzigingenSinds } from "./publicatie";
 import { useDemoPlanning } from "./demo";
+import { useVerlof } from "../collega/useVerlof";
+import { dagenKort, isWerkdag, soortDef, verlofPerMonteur } from "../collega/verlof";
 import "./montageplanning.css";
 
 type Ctx = {
   planning: Planning;
   projecten: Map<string, Montageproject>;
   mensen: Map<string, Medewerker>;
+  /** Verlof uit de module Collega in deze week, per monteur. */
+  verlof: ReturnType<typeof verlofPerMonteur>;
 };
 
 const vandaag = () => dagVan(new Date());
@@ -46,6 +50,7 @@ const heeft = (e: DragEvent, t: string) => e.dataTransfer.types.includes(t);
 export function MontageplanningPage() {
   const { data, user } = useSession();
   const planning = usePlanning();
+  const verlofData = useVerlof();
   const [maandag, setMaandag] = useState(() => maandagVan(vandaag()));
   const [open, setOpen] = useState<string | null>(null);
   const [kies, setKies] = useState<string | null>(null); // projectnummer dat met een klik geplaatst wordt
@@ -58,7 +63,8 @@ export function MontageplanningPage() {
   const monteurs = useMemo(() => (rows?.medewerkers ?? []).filter((m) => m.afdeling === "Montage"), [rows]);
   const week = weekSleutel(maandag);
   const dagen = weekDagen(maandag);
-  const ctx: Ctx = { planning, projecten, mensen };
+  const verlof = useMemo(() => verlofPerMonteur(verlofData.aanvragen, dagen), [verlofData.aanvragen, week]); // eslint-disable-line react-hooks/exhaustive-deps
+  const ctx: Ctx = { planning, projecten, mensen, verlof };
 
   const { teams, nieuw } = teamsVoorWeek(week, planning.teams, monteurs);
   useEffect(() => {
@@ -79,6 +85,11 @@ export function MontageplanningPage() {
   }
 
   const afwezig = planning.afwezig.filter((a) => a.week === week);
+  // Monteurs met goedgekeurd verlof op alle werkdagen van de week tellen voor het voorstel als afwezig.
+  const werkdagenWeek = dagen.filter(isWerkdag);
+  const helWeekVerlof: Afwezigheid[] = [...verlof]
+    .filter(([pnr, l]) => !afwezig.some((a) => a.personeelsnummer === pnr) && werkdagenWeek.length > 0 && werkdagenWeek.every((d) => l.some((x) => x.datum === d && x.status === "goedgekeurd" && x.deel === "hele")))
+    .map(([pnr]) => ({ id: `${week}|${pnr}`, week, personeelsnummer: pnr, reden: "Verlof" }));
   const afwezigSet = new Set(afwezig.map((a) => a.personeelsnummer));
   const ingedeeld = new Set(teams.flatMap((t) => t.leden));
   const reserve = monteurs.filter((m) => !ingedeeld.has(m.personeelsnummer) && !afwezigSet.has(m.personeelsnummer));
@@ -143,7 +154,7 @@ export function MontageplanningPage() {
     for (const t of gewijzigd) await herberekenTeam(t.nummer, Math.max(1, t.leden.length));
   };
   const maakVoorstelNu = async () => {
-    const v = maakVoorstel({ projecten: rows.montageprojecten, inzet: planning.inzet, teams, afwezig, maandag, fasen: planning.fasen });
+    const v = maakVoorstel({ projecten: rows.montageprojecten, inzet: planning.inzet, teams, afwezig: [...afwezig, ...helWeekVerlof], maandag, fasen: planning.fasen });
     if (!v.length) {
       setMelding("Geen voorstel mogelijk: er zijn geen ongeplande projecten met een gewenste start t/m deze week, of alle teams zijn bezet.");
       return;
@@ -353,6 +364,7 @@ function Bord({ ctx, dagen, teams, afwezig, reserve, kies, onPlaats, onVerplaats
     >
       {naam(m)}
       {m?.taal && m.taal !== "NL" && <small>{m.taal}</small>}
+      <VerlofTag lijst={ctx.verlof.get(pnr)} />
       {extra}
     </span>
   );
@@ -416,7 +428,7 @@ function Bord({ ctx, dagen, teams, afwezig, reserve, kies, onPlaats, onVerplaats
                   />
                 ))}
                 {segs.map((s) => (
-                  <Balk key={`${s.inzet.id}-${s.van}`} ctx={ctx} seg={s} dagen={dagen} teamGrootte={t.leden.length} grab={grab} onOpen={onOpen} />
+                  <Balk key={`${s.inzet.id}-${s.van}`} ctx={ctx} seg={s} dagen={dagen} teamGrootte={t.leden.length} leden={t.leden} grab={grab} onOpen={onOpen} />
                 ))}
               </div>
             </div>
@@ -447,7 +459,7 @@ function Bord({ ctx, dagen, teams, afwezig, reserve, kies, onPlaats, onVerplaats
   );
 }
 
-function Balk({ ctx, seg, dagen, teamGrootte, grab, onOpen }: { ctx: Ctx; seg: Segment; dagen: Dag[]; teamGrootte: number; grab: React.MutableRefObject<number>; onOpen(id: string): void }) {
+function Balk({ ctx, seg, dagen, teamGrootte, leden, grab, onOpen }: { ctx: Ctx; seg: Segment; dagen: Dag[]; teamGrootte: number; leden: string[]; grab: React.MutableRefObject<number>; onOpen(id: string): void }) {
   const { inzet: i, van, tot, lane } = seg;
   const p = ctx.projecten.get(i.projectnummer);
   const zichtbaar = dagen.slice(van, tot + 1);
@@ -460,6 +472,15 @@ function Balk({ ctx, seg, dagen, teamGrootte, grab, onOpen }: { ctx: Ctx; seg: S
   if (!p) signalen.push({ tone: "danger", tekst: "Project niet meer in export" });
   if (p && dek < 0.995) signalen.push({ tone: "danger", tekst: `Krap: ${Math.round(dek * 100)}% van VC` });
   if (eersteSeg && teamGrootte && teamGrootte !== i.monteurs) signalen.push({ tone: "warning", tekst: `Berekend met ${i.monteurs} man, team is nu ${teamGrootte}` });
+  // Verlof van teamleden op dagen van dit project (zichtbaar deel).
+  for (const pnr of leden) {
+    const v = (ctx.verlof.get(pnr) ?? []).filter((x) => zichtbaar.includes(x.datum) && i.dagen.some((d) => d.datum === x.datum));
+    const goed = v.filter((x) => x.status === "goedgekeurd").map((x) => x.datum);
+    const aangevraagd = v.filter((x) => x.status === "aangevraagd").map((x) => x.datum);
+    const voornaam = ctx.mensen.get(pnr)?.voornaam ?? pnr;
+    if (goed.length) signalen.push({ tone: "danger", tekst: `${voornaam} heeft verlof (${dagenKort(goed)})` });
+    if (aangevraagd.length) signalen.push({ tone: "warning", tekst: `${voornaam} vraagt verlof (${dagenKort(aangevraagd)})` });
+  }
   if (p && eersteSeg && dagVan(p.gewensteStart) > i.dagen[0].datum) signalen.push({ tone: "warning", tekst: `Start vóór materiaal (${datumKort(dagVan(p.gewensteStart))})` });
 
   return (
@@ -527,6 +548,7 @@ function Legenda() {
       <span><span className="mp-eq is-open"><Icon name="clock" />Nog niet bevestigd</span></span>
       <span><span className="mp-tag">Vast</span> vast afgesproken met de klant</span>
       <span><span className="mp-tag is-voorstel">Voorstel</span> nog te accepteren</span>
+      <span><span className="mp-vl is-goedgekeurd">Verlof</span> goedgekeurd <span className="mp-vl is-aangevraagd">Verlof?</span> aangevraagd (uit Collega)</span>
       <span>★ bouwleider · sleep monteurs tussen teams, reserve en afwezig</span>
     </div>
   );
@@ -801,5 +823,27 @@ function FasenPaneel({ planning, onClose }: { planning: Planning; onClose(): voi
       <Button variant="secondary" size="sm" icon="plus" onClick={() => setFasen([...fasen, ""])}>Fase toevoegen</Button>
       <p className="caption fx-muted">Aanreis, thuisreis, reparatie en gasdichtheidstest zijn altijd te kiezen per dag.</p>
     </Paneel>
+  );
+}
+
+/** Klein label op de monteurchip: verlof uit de module Collega in deze week. */
+function VerlofTag({ lijst }: { lijst?: ReturnType<typeof verlofPerMonteur> extends Map<string, infer V> ? V : never }) {
+  if (!lijst?.length) return null;
+  const goed = lijst.filter((x) => x.status === "goedgekeurd");
+  const open = lijst.filter((x) => x.status === "aangevraagd");
+  const tekst = (l: typeof lijst) => dagenKort([...new Set(l.map((x) => x.datum))]) + (l.some((x) => x.deel !== "hele") ? " (deels)" : "");
+  return (
+    <>
+      {goed.length > 0 && (
+        <span className="mp-vl is-goedgekeurd" title={`Goedgekeurd: ${soortDef(goed[0].soort).label}`}>
+          {tekst(goed)}<span className="mp-sr">, goedgekeurd verlof</span>
+        </span>
+      )}
+      {open.length > 0 && (
+        <span className="mp-vl is-aangevraagd" title="Verlof aangevraagd, nog niet goedgekeurd">
+          {tekst(open)}?<span className="mp-sr">, verlof aangevraagd</span>
+        </span>
+      )}
+    </>
   );
 }

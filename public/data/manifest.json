@@ -3,27 +3,27 @@
   "note": "Verzonnen testdata",
   "files": {
     "Bemet_Projecten.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
+      "exportedAt": "2026-11-26T05:00:00.000Z",
       "rows": 42
     },
     "Bemet_Medewerkers.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
+      "exportedAt": "2026-11-26T05:00:00.000Z",
       "rows": 47
     },
     "Bemet_Verlofsaldo.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
+      "exportedAt": "2026-11-26T05:00:00.000Z",
       "rows": 47
     },
     "Bemet_Productieorders.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
-      "rows": 211
+      "exportedAt": "2026-11-26T05:00:00.000Z",
+      "rows": 182
     },
     "Bemet_Calculatieregels.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
-      "rows": 305
+      "exportedAt": "2026-11-26T05:00:00.000Z",
+      "rows": 310
     },
     "Bemet_Montageprojecten.xlsx": {
-      "exportedAt": "2026-11-25T05:00:00.000Z",
+      "exportedAt": "2026-11-26T05:00:00.000Z",
       "rows": 30
     }
   }
